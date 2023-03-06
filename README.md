@@ -75,11 +75,14 @@ the file names exported by IDEAS, which look like this: 123_Ch1.tiff. “123” 
 a unique identifier used by IDEAS. The command line interface extracts this object number and stores it in the zarr file
 attributes.
 
+### Reading images from the zarr file
+
 After conversion an image can be read from the zarr file using the following code:
 
 ```python
 import zarr
 
+path = # path to the zarr file
 z = zarr.open(path, mode="r")
 
 idx = 0
@@ -87,13 +90,13 @@ image = z[idx].reshape(z.attrs["shape"][idx])
 object_number = z.attrs["object_number"][idx]
 ```
 
-As you can see, the images need to be reshaped to their original shape when read from the zarr file. This is because we
+Note: The images need to be reshaped to their original shape when read from the zarr file. This is because we
 use the zarr [VLenArray](https://numcodecs.readthedocs.io/en/stable/vlen.html#vlenarray) codec to store the images, wich
 only handles 1D arrays. We need to use the VLenArray codec, since imaging flow cytometry images have varying X and/or Y
 dimensions within one dataset and the zarr format is by default optimized for storing large arrays with uniform
 dimensions, like 10,000 x 10,000 x 10,000. We are thus dealing with variable-length, or _ragged_ arrays, which need some
 extra consideration. The downsides are that the reshaping adds a bit of overhead, and that the full multi-channel image
-needs to be read from disk even if you only need a subset of the channels.
+is read from disk even if you only need a subset of the channels.
 
 ### Exporting defined populations from IDEAS
 
